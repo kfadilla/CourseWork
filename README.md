@@ -4,7 +4,8 @@
 Two words are anagrams of each other if they contain the same
 characters, that is, they are a rearrangement of each other.
 
-Examples: mary and army, silent and listen, doctor who and torchwood.
+Examples: "mary" and "army", "silent" and "listen", "doctor who" and
+"torchwood".
 
 Note that we ignore spaces when checking whether two words are
 anagrams.
