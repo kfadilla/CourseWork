@@ -1,17 +1,17 @@
 # Pre-lecture assignment: anagram detection algorithm and its time complexity
 
 
-Two words are anagrams of each other if they contain the same
+Two strings are anagrams of each other if they contain the same
 characters, that is, they are a rearrangement of each other.
 
 Examples: "mary" and "army", "silent" and "listen", "doctor who" and
 "torchwood".
 
-Note that we ignore spaces when checking whether two words are
+Note that we ignore spaces when checking whether two string are
 anagrams.
 
-1. Design an algorithm for efficiently determining whether two words are
-   anagrams.
+1. Design an algorithm for efficiently determining whether two strings
+   are anagrams.
 
 2. Implement the algorithm in Java in a file named Anagram.java in
    your version of this repository. Create a class named `Anagram`
