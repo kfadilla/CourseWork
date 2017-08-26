@@ -1,0 +1,32 @@
+import static org.junit.Assert.*;
+
+public class AnagramTest {
+    @org.junit.Test
+    public void anagram_v1() throws Exception {
+        assertTrue(Anagram.anagram_v1("mary", "army"));
+        assertTrue(Anagram.anagram_v1("silent", "listen"));
+        assertTrue(Anagram.anagram_v1("doctor who", "torchwood"));
+        assertFalse(Anagram.anagram_v1("mary", "arm"));
+        assertFalse(Anagram.anagram_v1("doctr who", "torchwood"));
+    }
+
+    @org.junit.Test
+    public void anagram_v2() throws Exception {
+        assertTrue(Anagram.anagram_v2("mary", "army"));
+        assertTrue(Anagram.anagram_v2("silent", "listen"));
+        assertTrue(Anagram.anagram_v2("doctor who", "torchwood"));
+        assertFalse(Anagram.anagram_v2("mary", "arm"));
+        assertFalse(Anagram.anagram_v2("doctr who", "torchwood"));
+
+    }
+
+    @org.junit.Test
+    public void anagram_v3() throws Exception {
+        assertTrue(Anagram.anagram_v3("mary", "army"));
+        assertTrue(Anagram.anagram_v3("silent", "listen"));
+        assertTrue(Anagram.anagram_v3("doctor who", "torchwood"));
+        assertFalse(Anagram.anagram_v3("mary", "arm"));
+        assertFalse(Anagram.anagram_v3("doctr who", "torchwood"));
+    }
+
+}
