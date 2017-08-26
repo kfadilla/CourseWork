@@ -1,6 +1,5 @@
 # Pre-lecture assignment: anagram detection algorithm and its time complexity
 
-
 Two strings are anagrams of each other if they contain the same
 characters, that is, they are a rearrangement of each other.
 
@@ -21,8 +20,9 @@ anagrams.
    public static boolean anagram(String s1, String s2) { ... }
    ~~~~   
 
-   As usual, test the `anagram` method in the `main` method of your
-   Anagram class.
+   Test the `anagram` method using JUnit in the AnagramTest.java
+   file, adding three more test cases and checking to make sure
+   the tests acheive complete code coverage.
 
 3. What is the big-O time complexity of your anagram detection algorithm?
    Put your answer in a file named README.md in your version of
