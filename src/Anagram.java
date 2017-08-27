@@ -5,7 +5,7 @@ public class Anagram {
         char[] a2 = s2.toCharArray();
         boolean TF = false;
         if (a1.length != a2.length){
-            return false;
+            return TF = false;
         }
         else
             for (int i = 0; i != a1.length;++i){
