@@ -27,3 +27,5 @@ anagrams.
 3. What is the big-O time complexity of your anagram detection algorithm?
    Put your answer in a file named README.md in your version of
    this repository.
+   
+   O(n^2)
