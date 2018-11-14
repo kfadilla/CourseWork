@@ -1,9 +1,8 @@
-import org.junit.After;
-
 import static org.junit.Assert.*;
 
-public class AnagramTest {
-    public void anagram() throws Exception {
+public class Test {
+    @org.junit.Test
+    public void testAnagram() throws Exception {
         assertTrue(Anagram.anagram("mary", "army"));
         assertTrue(Anagram.anagram("doctor who", "torchwood"));
         assertFalse(Anagram.anagram("mary", "arm"));
