@@ -1,0 +1,40 @@
+Name: Kwong Yuet Michael Fadillah Wong
+Username: kfadila
+Lab section: 11266
+Project 4: Text Compression
+
+Alice:
+The original text has 163675 characters.
+The average length of a code is 4.60 bits.
+The text is encoded in 752855 bits.
+The savings is 556545 bits.
+The compressed text is encoded in 94108 characters.
+The savings is 69567 characters.
+Decompressing yields 752855 bits.
+The recovered text has 163675 characters.
+
+All tests passed...
+
+Moby dick:
+The original text has 12352 characters.
+The average length of a code is 4.43 bits.
+The text is encoded in 54691 bits.
+The savings is 44125 bits.
+The compressed text is encoded in 6838 characters.
+The savings is 5514 characters.
+Decompressing yields 54691 bits.
+The recovered text has 12352 characters.
+
+All tests passed...
+
+My book:
+The original text has 30329 characters.
+The average length of a code is 4.58 bits.
+The text is encoded in 138879 bits.
+The savings is 103753 bits.
+The compressed text is encoded in 17361 characters.
+The savings is 12968 characters.
+Decompressing yields 138879 bits.
+The recovered text has 30329 characters.
+
+All tests passed...
