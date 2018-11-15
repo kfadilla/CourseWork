@@ -1,0 +1,66 @@
+1a.
+π sid,sname(σ Buys.bookno = Cites.bookno ∧ Student.sid = Buys.sid (Students x Cites x Buys ))
+1b
+π Student.sid,Student.sname(σ student.sid = m1.sid ∧ student.sid = m2.sid ∧ m2.sid <> m1.sid
+(Student x Major m1 x major m2) )
+1c.
+ π sid(Buys) - π B1.sid(σ B1.sid = B2.sid ∧ B1.bookno <> B2.bookno(Buys B1 x Buys B2) )
+1d.
+πbookno,title(Book) - πbookno,title(σBuys1.sid <> 1001 ^ Buys.bookno <>  Book.bookno(Book x Buys))
+
+1e.
+πStudent.sid, student.sname(σStudent.sid = Buys1.sid ^ Student.sid = Buys2.sid ^ book1.bookno = Buys1.bookno 
+^ book2.bookno = Buys2.bookno ^ Book1.bookno <> Book2.Bookno
+ ^ Book1.price <50 ^ Book2.price < 50
+ (Book1 * Book2 * Buys1 * Buys2 *Student))
+
+1f.
+πBookno(Buys) - πBookno(σMajor.major = 'CS'(Buys * Major))
+
+1g.
+π bookno(book) 
+- π Cites.Citedbookno(σ Cites.bookno = Book.bookno ∧ Book.price > 50 (Book x Cites))
+
+1h
+πBuys.sid,Book.BookNo(Buys * Book) 
+- πBuys.sid,Book.BookNo(σBuys.Bookno = Cites.Bookno
+(Buys * Cites * Book))
+
+1i
+E1 : π major, sid(σ major.major = ‘CS’ (Major))
+E2: π E1.sid, Buys.bookno (E1⋈E1.sid = Buys.sid Buys )
+E3: π b1.bookno, b2.bookno (Book b1⋈ B1.bookno <> B2.bookno Book b2 
+E4: π b1,b2 (E2⋈Book)    
+E5: π b1,E2.sid, b2 (E2 ⋈ Book)
+E6: π b1,b2 ((π* (E4)) - (π* (E5)) q)
+E7: (π* (E3) - π*(E6) ∧ (π*(E3) - π*(E7)))
+
+1j
+E1= πs1.sid,s2.sid,B1.BookNo(σB1.sid=s1.Sid(Student s1*Student s2*Buys B1))
+E2= πs1.sid,s2.sid,B2.BookNo(σB2.sid=s2.Sid(Student s1*Student s2*Buys B2))
+E3= πk.sid,k.sid(πall(E1)- πall(E2))k)
+E4= πs1.sid,s2.sid(σs1.sid<>s2.sid(Student s1*Student s2))
+E5= π all(E4)- π all(E3)
+So: π all(E5)
+2a
+πmajor.sid, major.major(σbuys.bookno = book.bookno ^ book.price < 20 ^ major.sid = buys.sid (Major * Buys * Book))
+
+2b
+πBuys.sid, Book.Bookno(σbuys.bookno = book.bookno(Buys * Book)) 
+- πBuys.sid, book.bookno(σBuys.Bookno = Book.Bookno ^ Buys1.sid = Buys.sid
+ ^ book.price > book1.price 
+(Book1 * Book * Buys * Buys1)))
+2c.
+πStudent.sid, Student.sname(σmajor.mmajor = 'CS' 
+^ student.sid = major.sid ^ student.sid = Buys.sid 
+^ buys.bookno = cites.citedbookno 
+^ cites.citedBookno = book1.bookno 
+^ cites.bookno = book2.bookno 
+^ Book1.price > Book2.price 
+(Student * Major * Buys * Cites  * Book1 * Book2))
+
+2d.
+πBook.bookno, Book.title(σmajor.major = 'CS' ^ major.sid = buys.sid ^ buys.bookno <> book.bookno (Book * Buys * Major))
+
+2e
+πBook.Bookno, Book.title(Book)−πBookno,Book.Title(πmajor1.sid(σmajor1.sid = major2.sid ^ major1.major = "CS" ^ major2.major = "Math" (Major1 * Major2))) − Buys))

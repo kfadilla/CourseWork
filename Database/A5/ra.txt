@@ -1,0 +1,49 @@
+--1
+πStudent.sid, sname, book.bookno, title(Student x Book⋈ (student.sname = 'Eric' U student.sname = 'Anna') ^ student.sid = buys.sid ^ book.price > 20 ^ buys.bookno = book.bookno Buys)
+--to
+πq1.sid, q1.sname, buys.bookno, q2.title(π*(σs.sname = 'Eric' U s.sname = Anna (s)) 
+⋉ buys ⋉ πb.bookno, b.title(σb.price >20 (b)) (s = student, b = book, q1 = π*(σs.sname = 'Eric' U s.sname = 'Anna' (s)),q2 = πb.bookno,b.title(σb.priice > 20 (b)))
+
+--2
+πStudent.sid(Student x Book⋈ (student.sname = 'Eric' U student.sname = 'Anna') ^ student.sid = buys.sid ^ book.price > 20 ^ buys.bookno = book.bookno Buys)
+--to
+πq1.sid(π*(σs.sname = 'Eric' U s.sname = 'Anna' (s)) 
+⋉ buys ⋉ πb.bookno, b.title(σb.price >20 (b)) (s = student, b = book, q1 = π*(σs.sname = 'Eric' U s.sname = 'Anna' (s)) q2 = πb.bookno,b.title(σb.priice > 20 (b)))
+
+--3
+πs1.sid,b1.price,b2.price(πs.sid(σs.sname <> 'eric' (s)) x b2 ⋈ b1.bookno <> b2.bookno ^ b1.price >60^b2.price >= 50 b1)⋈ t1.bookno = b1.bookno ^ t1.sid = s.sid t1 ⋈ t2.bookno = b2.bookno ^ t2.sid = s.sid t2)
+(s = student,s1 = πs.sid(σs.sname = 'Eric' (s)), b1 = book, b2 = book, t1 = buys, t2 = buys)
+
+--to
+πq1.sid, q2.price1\b1_price, q3.price2\b2_price(πs.sid (σ s.sname <> 'Eric' (s))
+⋉ (buys ⋉ πb.book, b.price\price1(σb.price > 60 (b))) ⋈ q2.bookno <> q3.bookno ^ q2.sid = q3.sid
+(Buys ⋉ πb.bookno, b.price\price2 (σb.price >=50 (b))))
+(s = student, b = book, q1 = πs.sid(σs.sname <> 'Eric' (s)), q2 = buys⋉ πb.bookno, b.price\price1(σb.price >60(b)), q3 = buys⋉ πb.bookno,b.price\price2(σb.price>60(b)))
+
+
+--4
+πq.sid(πs.sid,s.sname(s) - πs.sid,s.sname(s⋈s.sid=t.sid t⋈t.bookno=b.bookno ^ b.price >50b))
+(s = student, b= book, t=buys, q = πs.sid,s.sname(s) - πs.sid,s.sname(s⋈s.sid=t.sid t⋈t.bookno=b.bookno ^ b.price >50b))
+
+--to
+πq.sid(πs.sid,s.sname(s) - πs.sid,s.sname(s⋉buys ⋉πb.bookno,b.price(σb.price>50 (b))))
+(s = student, b = book, t=buys, q = πs.sid,s.sname(s) - πs.sid,s.sname(s⋉buys ⋉πb.bookno,b.price(σb.price>50 (b))))
+
+--5
+πq.sid,q.sname(πs.sid,s.sname,2007\bookno (s x b) ^ πs.sid,s.sname,b.ookno (s x b⋈ s.sid=t.sid ^t.bookno = b.bookno ^ b.price <25 t))
+(s = student, b = book, t = buys, q = πs.sid,s.sname,2007\bookno (s x b) ^ πs.sid,s.sname,b.ookno (s x b⋈ s.sid=t.sid ^t.bookno = b.bookno ^ b.price <25 t))
+
+--to
+πq.sid,q.sname(πs.sid,s.sname, 2007\bookno(s x b) ^ πs.sid,s.sname,subq1.bookno (s ⋉buys ⋉ πb.bookno, b.price(σb.price <25 (b))))
+(s = student, b = book, t = buys, q = πs.sid,s.sname, 2007\bookno(s x b) ^ πs.sid,s.sname,subq1.bookno (s ⋉buys ⋉ πb.bookno, b.price(σb.price <25 (b))))
+
+--6
+πq.bookno(πs.sid,s.sname,b.bookno,b.title(sxb) - πs.sid,s.sname,b.bookno,b.title(s x b ⋈ s.sid = t.sid ^ t.bookno = b.bookno ^ b.price < 20 t))
+(s = student, b = book, t = buys, q = πs.sid,s.sname,b.bookno,b.title(sxb) - πs.sid,s.sname,b.bookno,b.title(s x b ⋈ s.sid = t.sid ^ t.bookno = b.bookno ^ b.price < 20 t))
+
+--to
+πq.bookno(π* (s * πb.bookno, b.title(b)) - πs.sid,s.sname, sub2.bookno, subq2.title(s ⋉ buys 
+⋉ πb.bookno, b.title(σb.price < 20(b))))
+(s = student, b = book, t = buys, subq2 = (s ⋉ buys 
+⋉ πb.bookno, b.title(σb.price < 20(b))), q = π* (s * πb.bookno, b.title(b)) - πs.sid,s.sname, sub2.bookno, subq2.title(s ⋉ buys 
+⋉ πb.bookno, b.title(σb.price < 20(b))))
