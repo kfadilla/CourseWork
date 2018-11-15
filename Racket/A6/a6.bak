@@ -1,0 +1,121 @@
+#lang racket
+(require racket/trace)
+;ass 6
+;what is cps, get wirthout waiting: beautifiul snake
+(define empty-k
+  (lambda ()
+    (let ((once-only #f))
+      (lambda (v)
+        (if once-only
+	    (error 'empty-k "You can only invoke the empty continuation once")
+	    (begin (set! once-only #t) v))))))
+
+(define binary-to-decimal
+  (lambda (n)
+    (cond
+      [(null? n) 0]
+      [else (+ (car n) (* 2 (binary-to-decimal (cdr n))))])))
+
+(binary-to-decimal '())
+
+;1
+(define binary-to-decimal-cps
+  (lambda (n k)
+    (cond
+      [(null? n) (k 0)]
+      ;[else (+ (car n) (* 2 (binary-to-decimal (cdr n))))]
+      [else (binary-to-decimal-cps (cdr n)
+                                   (lambda(x)
+                                     (k (+ (car n) (* x 2) )); what is x
+                                     ))]
+      )))
+
+;(binary-to-decimal-cps '(1) (empty-k))
+;(binary-to-decimal-cps '(1 1 0 1) (empty-k))
+
+;2
+(define times-cps
+  (lambda (ls k)
+    (cond
+      [(null? ls) (k 1)]
+      [(zero? (car ls)) (k 0)]
+      ;[else (* (car ls) (times (cdr ls)))]
+      [else (times-cps (cdr ls)
+                       (lambda (x)
+                         (k (* (car ls) x)); thinl x as recursion
+                         )
+                       )
+       ]
+      )))
+;(trace times-cps)
+;(times-cps '(1 2 3 4 5) (empty-k))
+
+;3
+(define times-cps-shortcut
+  (lambda (ls k)
+    (cond
+      [(null? ls) (k 1)]
+      [(zero? (car ls)) 0]; what the difference with k ??
+      ;[else (* (car ls) (times (cdr ls)))]
+      [else (times-cps-shortcut (cdr ls)
+                       (lambda (x)
+                         (k (* (car ls) x)); thinl x as recursion
+                         )
+                       )
+       ]
+      )))
+
+;(trace times-cps-shortcut)
+;(times-cps-shortcut '(1 2 3 4 5) (empty-k))
+
+;4
+(define plus-cps
+  (lambda (m k)
+    (k (lambda (n k)
+     (k (+ m n)))))) ;; always apply k
+
+;((plus-cps ((plus-cps 2 (empty-k)) 3 (empty-k)) (empty-k)) 5 (empty-k))
+
+;5
+(define remv-first-9*-cps
+  (lambda (ls k)
+    (cond
+      [(null? ls) (k '())]
+      [(pair? (car ls))
+       (remv-first-9*-cps (car ls) (lambda (x1)
+                                     (cond
+                                        [(equal? (car ls) x1)
+                                         (remv-first-9*-cps (cdr ls) (lambda (x2)
+                                                                       (k (cons (car ls) x2))))]
+                                        [else (remv-first-9*-cps (car ls) (lambda (x3)
+                                                                            (k (cons x3 (cdr ls)))))])))]
+      [(eqv? (car ls) '9) (k (cdr ls))]
+      ;[else (cons (car ls) (remv-first-9* (cdr ls)))]
+      [else (remv-first-9*-cps (cdr ls) (lambda(x) (k (cons x (car ls)))))]
+      )))
+;(remv-first-9*-cps '(((((9) 9) 9) 9) 9) (empty-k))
+
+;6
+(define cons-cell-count-cps
+  (lambda (ls k)
+    (cond
+      [(pair? ls)
+       (cons-cell-count-cps (cdr ls) ;;cdr ls
+                            (lambda (x) (cons-cell-count-cps (car ls)
+                                                             (lambda (y) (k (add1 (+ x y)))))))]
+      [else
+       (k 0)]
+      )))
+
+;(cons-cell-count-cps (cons (cons (cons (cons 3 '()) (cons 2 (cons 3 (cons 1 '())))) '()) '()) (empty-k))
+
+;7
+(define find-cps
+  (lambda (u s k)
+    (let ((pr (assv u s)))
+      (if pr
+          (find-cps (cdr pr) s k)
+          (k u)))))
+;(find-cps 5 '((5 . a) (6 . b) (7 . c)) (empty-k))
+
+;8

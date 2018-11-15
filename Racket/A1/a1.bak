@@ -1,0 +1,35 @@
+#lang racket
+;1
+(define countdown
+  (λ (n)
+  (cond
+    [(zero? n) '(0)]
+    [else (cons n (countdown (sub1 n)))])))
+
+;2
+(define insertR
+  (λ (x y ls)
+    (cond
+      [(null? ls) ls]
+      [else (if (eqv? (car ls) x) (cons x (cons y (insertR x y (cdr ls)))) (cons (car ls) (insertR x y (cdr ls))))])))
+
+
+;3
+(define remv-1st
+  (λ (x ls)
+    (cond
+      [(null? ls) ls]
+      [(eqv? x (car ls)) (cdr ls)]
+      [else (cons (car ls) (remv-1st x (cdr ls)))])))
+
+;4
+(define list-index-ofv?
+  (λ (x ls)
+    (cond
+      [(eqv? x (car ls)) 0]
+      [else (add1 (list-index-ofv? x (cdr ls)))])))
+
+;5
+
+
+      

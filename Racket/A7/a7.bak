@@ -1,0 +1,132 @@
+#lang racket
+;Part 1:
+;last-non-zero: list -> list
+(define last-non-zero
+  (lambda (ls)
+    (let/cc k
+      (letrec
+	([last-non-zero
+	   (lambda (ls)
+	     (cond
+               [(null? ls) '()]
+               [(zero? (car ls)) (k (last-non-zero (cdr ls)))]
+               [else (cons (car ls) (last-non-zero (cdr ls)))]
+  	       ))])
+	(last-non-zero ls)))))
+
+;(last-non-zero '(1 2 3 0 4 5))
+
+(define (lex exp env)
+  (match exp
+    [`,y #:when (symbol? y) `(var ,(- (length env) (length (memv y env))))]
+    [`,y #:when (number? y) `(const ,y)]
+    [`(zero? ,nexp) `(zero ,(lex nexp env))]
+    [`(sub1 ,y) `(sub1 ,(lex y env))]
+    [`(* ,nexp1 ,nexp2) `(mult ,(lex nexp1 env) ,(lex nexp2 env))]
+    [`(if ,boo ,x ,y) `(if ,(lex boo env) ,(lex x env) ,(lex y env))]
+    [`(throw ,k ,body) `(throw ,(lex k env) ,(lex body env))]
+    [`(let ([,id ,y]) ,body)
+     `(let ,(lex y env) ,(lex body (cons id env)))]
+    [`(let/cc ,k ,body) `(letcc ,(lex body (cons k env)))]
+    [`(lambda (,id) ,body) `(lambda ,(lex body (cons id env)))]
+    [`(,rator ,rand) `(app ,(lex rator env) ,(lex rand env))]
+    ))
+
+
+
+(define value-of-cps
+  (lambda (exp env-cps k)
+    (match exp
+      [`(const ,exp) (apply-k k exp)]
+      [`(mult ,x1 ,x2) (value-of-cps x1 env-cps (mult-outer-k x2 env-cps k))]
+      [`(sub1 ,x) (value-of-cps x env-cps (sub1-constructor-k k))]
+      [`(zero ,x) (value-of-cps x env-cps (zero-consrtuctor-k k))]
+      [`(if ,test ,conseq ,alt) (value-of-cps test env-cps (if-constructor-k conseq alt env-cps k))]
+      [`(letcc ,body) (value-of-cps body (extend-env-cps k env-cps) k)]
+      [`(throw ,k-exp ,v-exp) (value-of-cps k-exp env-cps (throw-outer-k v-exp env-cps))]
+      [`(let ,e ,body) (value-of-cps e env-cps (let-constructor-k body en-cps v k))]
+      [`(var ,exp) (apply-env-cps env-cps exp k)]
+      [`(lambda ,body) (apply-k k (make-closure body env-cps))]
+      [`(app ,rator ,rand) (value-of-cps rator env-cps (app-outer-k rand env-cps k))]
+      )))
+
+(define empty-env
+  (lambda ()
+    `(empty-env)))
+
+(define extend-env
+  (lambda (a env)
+    `(extend-env ,a ,env)))
+
+(define apply-env
+  (lambda (env y k) 
+    (match env
+      [`(extend-env ,a^ ,env^) (if (zero? y) (apply-k k a^) (apply-env env^ (sub1 y) k))] 
+      [`(empty-env) (error 'value-of "unbound identifier")])))
+
+(define make-closure
+  (lambda (body env)
+   `(closure ,body ,env)))
+
+(define apply-closure
+  (lambda (lhs a k)
+   (match lhs
+     [`(closure ,body ,env) (value-of-cps body (extend-env a env) k)])))
+
+(define empty-k
+  (lambda ()
+    `(empty-k)))
+
+(define apply-k
+  (lambda (k var)
+    (match k
+      [`(empty-k) var]
+      [`(mult-inner-k ,var^ ,k^) (apply-k k^ (* var var^))]
+      [`(mult-outer-k ,x2^ ,env^ ,k^) (value-of-cps x2^ env^ (mult-inner-k var k^))]
+      [`(sub1-constructor-k ,k^) (apply-k k^ (sub1 var))]
+      [`(zero-consrtuctor-k ,k^) (apply-k k^ (zero? var))]
+      [`(if-constructor-k ,conseq^ ,alt^ ,env^ ,k^)
+       (if var (value-of-cps conseq^ env^ k^) (value-of-cps alt^ env^ k^))]
+      [`(throw-inner-k ,v^) (apply-k v^ var)]
+      [`(throw-outer-k ,k-exp^ ,env^) (value-of-cps k-exp^ env^ (throw-inner-k var))]
+      [`(let-constructor-k ,body^ ,env^ ,k^) (value-of-cps body^ (extend-env var env^) k^)]
+      [`(app-inner-k ,var^ ,k^) (apply-closure var^ var k^)]
+      [`(app-outer-k ,rand^ ,env^ ,k^) (value-of-cps rand^ env^ (app-inner-k var k^))]
+      )))
+
+(define mult-inner-k
+  (lambda (var^ k^)
+    `(mult-inner-k ,var^ ,k^)))
+(define mult-outer-k
+  (lambda (x2^ env^ k^)
+    `(mult-outer-k ,x2^ ,env^ ,k^)))
+
+(define sub1-constructor-k
+  (lambda (k^)
+    `(sub1-constructor-k ,k^)))
+
+(define zero-consrtuctor-k
+  (lambda (k^)
+    `(zero-consrtuctor-k ,k^)))
+
+(define if-constructor-k
+  (lambda (conseq^ alt^ env^ k^)
+    `(if-constructor-k ,conseq^ ,alt^ ,env^ ,k^)))
+
+(define throw-inner-k
+  (lambda (v^)
+    `(throw-inner-k ,v^)))
+(define throw-outer-k
+  (lambda (k-exp^ env^)
+    `(throw-outer-k ,k-exp^ ,env^)))
+
+(define let-constructor-k
+  (lambda (body^ env^ k^)
+    `(let-constructor-k ,body^ ,env^ ,k^)))
+
+(define app-inner-k
+  (lambda (v^ k^)
+    `(app-inner-k ,v^ ,k^)))
+(define app-outer-k
+  (lambda (rand^ env^ k^)
+    `(app-outer-k ,rand^ ,env^ ,k^)))

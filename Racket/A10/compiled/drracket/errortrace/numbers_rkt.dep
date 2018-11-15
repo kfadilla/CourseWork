@@ -1,0 +1,1 @@
+("7.0" ("31580c1d11c08d21aa20149733f039c95005bb94" . "2f30b00a8b016a6460a6a589a23ca35744816f24") #"C:\\Users\\Fadil\\Desktop\\School\\Fall2018\\CSCI-C311\\A10\\mk.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt"))

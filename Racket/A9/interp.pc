@@ -1,0 +1,178 @@
+; #lang racket
+; (require "parenthec.rkt")
+
+(define-registers y^ k var env clos^ expression a^)
+
+(define-program-counter pc)
+
+(define-union expr
+  (const cexp)
+  (var n)
+  (if test conseq alt)
+  (mult nexp1 nexp2)
+  (sub1 nexp)
+  (zero nexp)
+  (letcc body)
+  (throw kexp vexp)
+  (let exp body)              
+  (lambda body)
+  (app rator rand))
+
+;env
+(define-union envr
+  (empty-env)
+  (extend-env a^ env^))
+(define-label apply-env
+  (union-case env envr
+              [(extend-env a^ env^) (if (zero? y^)
+                                        (begin (set! k k)
+                                               (set! var a^)
+                                               (set! pc apply-k))
+                                        (begin (set! env env^)
+                                               (set! y^ (sub1 y^))
+                                               (set! k k)
+                                               (set! pc apply-env)))]
+              [(empty-env) (error 'value-of "unbound identifier")]))
+
+; closure
+(define-union clos
+  (closure body env))
+(define-label apply-closure
+  (union-case clos^ clos
+              [(closure body^ env^) (begin (set! expression body^)
+                                           (set! env (envr_extend-env a^ env^))
+                                           (set! k k)
+                                           (set! pc value-of-cps))]
+              ))
+
+; continuation
+(define-union kt
+  (empty-k dismount)
+  (mult-inner-k v^ k^)
+  (mult-outer-k nexp2^ env^ k^)
+  (sub1-constructor-k k^)
+  (zero-constructor-k k^)
+  (if-constructor-k conseq^ alt^ env^ k^)
+  (throw-inner-k vexp^)
+  (throw-outer-k kexp^ env^)
+  (let-constructor-k body^ env^ k^)
+  (app-inner-k v^ k^)
+  (app-outer-k rand^ env^ k^))
+
+; interpreter
+(define-label value-of-cps
+  (union-case expression expr
+              [(const cexp) (begin (set! var cexp)
+                                   (set! k k)
+                                   (set! pc apply-k))]
+              [(mult nexp1 nexp2) (begin (set! expression nexp1)
+                                         (set! env env)
+                                         (set! k (kt_mult-outer-k nexp2 env k))
+                                         (set! pc value-of-cps))]
+              [(sub1 nexp) (begin (set! expression nexp)
+                                  (set! env env)
+                                  (set! k (kt_sub1-constructor-k k))
+                                  (set! pc value-of-cps))]
+              [(zero nexp) (begin (set! expression nexp)
+                                  (set! env env)
+                                  (set! k (kt_zero-constructor-k k))
+                                  (set! pc value-of-cps))]
+              [(if test conseq alt) (begin (set! expression test)
+                                           (set! env env)
+                                           (set! k (kt_if-constructor-k conseq alt env k))
+                                           (set! pc value-of-cps))]
+              [(letcc body) (begin (set! expression body)
+                                   (set! env (envr_extend-env k env))
+                                   (set! k k)
+                                   (set! pc value-of-cps))]
+              [(throw kexp vexp) (begin (set! expression kexp)
+                                        (set! env env)
+                                        (set! k (kt_throw-outer-k vexp env))
+                                        (set! pc value-of-cps))]
+              [(let exp body) (begin (set! expression exp)
+                                     (set! env env)
+                                     (set! k (kt_let-constructor-k body env k))
+                                     (set! pc value-of-cps))]
+              [(var n) (begin (set! y^ n)
+                              (set! env env)
+                              (set! k k)
+                              (set! pc apply-env))]
+              [(lambda body) (begin (set! var (clos_closure body env))
+                                    (set! k k)
+                                    (set! pc apply-k))]
+              [(app rator rand) (begin (set! expression rator)
+                                       (set! env env)
+                                       (set! k (kt_app-outer-k rand env k))
+                                       (set! pc value-of-cps))]
+              ))
+
+(define-label apply-k
+  (union-case k kt
+              [(empty-k dismount) (dismount-trampoline dismount)]
+              [(mult-inner-k var^ k^) (begin (set! var (* var var^))
+                                             (set! k k^)
+                                             (set! pc apply-k))]
+              [(mult-outer-k nexp2^ env^ k^) (begin (set! k (kt_mult-inner-k var k^))
+                                                    (set! env env^)
+                                                    (set! expression nexp2^)
+                                                    (set! pc value-of-cps))]
+              [(sub1-constructor-k k^) (begin (set! var (sub1 var))
+                                              (set! k k^)
+                                              (set! pc apply-k))]
+              [(zero-constructor-k k^) (begin (set! var (zero? var))
+                                              (set! k k^)
+                                              (set! pc apply-k))]
+              [(if-constructor-k conseq^ alt^ env^ k^)
+               (if var
+                   (begin (set! k k^)
+                          (set! env env^)
+                          (set! expression conseq^)
+                          (set! pc value-of-cps))
+                   (begin (set! k k^)
+                          (set! env env^)
+                          (set! expression alt^)
+                          (set! pc value-of-cps)))]
+              [(throw-inner-k v^) (begin (set! var var)
+                                         (set! k v^)
+                                         (set! pc apply-k))]
+              [(throw-outer-k kexp^ env^) (begin (set! k (kt_throw-inner-k var))
+                                                 (set! env env^)
+                                                 (set! expression kexp^)
+                                                 (set! pc value-of-cps))]
+              [(let-constructor-k body^ env^ k^) (begin (set! k k^)
+                                                        (set! env (envr_extend-env var env^))
+                                                        (set! expression body^)
+                                                        (set! pc value-of-cps))]
+              [(app-inner-k var^ k^) (begin (set! k k^)
+                                            (set! a^ var)
+                                            (set! clos^ var^)                                             
+                                            (set! pc apply-closure))]
+              [(app-outer-k rand^ env^ k^)  (begin (set! k (kt_app-inner-k var k^))
+                                                   (set! env env^)
+                                                   (set! expression rand^)
+                                                   (set! pc value-of-cps))]
+              ))
+(define-label main 
+  (begin
+    (set! k (kt_empty-k k))
+    (set! env (envr_empty-env))
+    (set! expression (expr_let 
+                      (expr_lambda
+                       (expr_lambda 
+                        (expr_if
+                              (expr_zero (expr_var 0))
+                              (expr_const 1)
+                              (expr_mult (expr_var 0) (expr_app (expr_app (expr_var 1) (expr_var 1))
+                                                                (expr_sub1 (expr_var 0)))))))
+                      (expr_mult
+                       (expr_letcc
+                        (expr_app
+                         (expr_app (expr_var 1) (expr_var 1))
+                         (expr_throw (expr_var 0) (expr_app (expr_app (expr_var 1) (expr_var 1))
+                                                            (expr_const 4)))))
+                       (expr_const 5))))
+    (set! pc value-of-cps)
+    (mount-trampoline kt_empty-k k pc)
+    (printf "Fact 5: ~s\n" var)))
+
+;(main)
