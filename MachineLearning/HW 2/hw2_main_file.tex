@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage{fancyheadings,multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem,bm}
+\usepackage{graphicx, float}
+
+%% Custom page layout.
+\setlength{\textheight}{\paperheight}
+\addtolength{\textheight}{-2in}
+\setlength{\topmargin}{-.5in}
+\setlength{\headsep}{.5in}
+\addtolength{\headsep}{-\headheight}
+\setlength{\footskip}{.5in}
+\setlength{\textwidth}{\paperwidth}
+\addtolength{\textwidth}{-2in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\flushbottom
+
+\allowdisplaybreaks
+
+%% Custom headers and footers.
+\pagestyle{fancyplain}
+\let\headrule=\empty
+\let\footrule=\empty
+\lhead{\fancyplain{}{Spring 2018}}
+\rhead{\fancyplain{}{CSCI-B455: Machine Learning}}
+\cfoot{{\thepage/\pageref{EndOfAssignment}}}
+
+%% Macros to generate question and part numbers automatically
+\newcounter{totalmarks}
+\setcounter{totalmarks}{0}
+\newcounter{questionnumber}
+\setcounter{questionnumber}{0}
+\newcounter{subquestionnumber}[questionnumber]
+\setcounter{subquestionnumber}{0}
+\renewcommand{\thesubquestionnumber}{(\alph{subquestionnumber})}
+\newcommand{\question}[2][]%
+  {\ifx\empty#2\empty\else
+   \addtocounter{totalmarks}{#2}\refstepcounter{questionnumber}\fi
+   \bigskip\noindent\textbf{\Large Question \thequestionnumber. } #1
+   {\scshape\ifx\empty#2\empty(continued)\else
+   [#2 point\ifnum #2 > 1 s\fi]\fi}\par
+   \medskip\noindent\ignorespaces}
+\newcommand{\subquestion}[2][]%
+  {\ifx\empty#2\empty\else\refstepcounter{subquestionnumber}\fi
+   \medskip\textbf{\large \thesubquestionnumber } #1
+   {\scshape\ifx\empty#2\empty(continued)\else
+   [#2 point\ifnum #2 > 1 s\fi]\fi}
+   \smallskip\noindent\ignorespaces}
+\newcommand{\bonus}[2][]%
+  {\bigskip\noindent\textbf{\Large Bonus. } #1
+   {\scshape\ifx\empty#2\empty(continued)\else
+   [#2 point\ifnum #2 > 1 s\fi]\fi}\par
+   \medskip\noindent\ignorespaces}
+
+% Enable final count to be printed at top
+\usepackage{totcount}
+\regtotcounter{totalmarks}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+
+%\thispagestyle{plain}
+
+\begin{center}
+\bfseries
+{\Large Homework Assignment \# 2}\\
+   Due: Monday, February 19, 2018, 11:59 p.m. \\
+   Total Points: \total{totalmarks}
+\end{center}
+
+%%%%%%%%%%%%%%%%
+
+%1. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{a2_ml_exponential2}
+\paragraph{}
+$f(x;\theta) = \theta e^{-\theta x}$\\
+$L(\theta) = argmax\theta e^{-\theta \sum xk}$\\
+Taking the log:\\
+$logL(\theta) = log\theta - \theta \sum xk$\\
+\\
+Take derivative:\\
+$\frac{1}{\theta} - \sum xk$\\
+$\hat{\theta} = \frac{1}{\frac{1}{n}\sum xk}$\\
+
+
+%2. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{a2_poisson4}
+\paragraph{}
+$substitute \theta = 0.5$\\
+Taking the log:\\
+$log0.5 - 0.5\lambda + \sum (xilog\lambda - \lambda - logxi!)$\\
+\\
+Take derivative:\\
+$-0.5 + \frac{1}{\lambda} \sum xi - n = 0$\\
+$\lambda = \frac{1}{n + 0.5}\sum xi$\\
+$ \lambda = \frac{1}{9+0.5} * 79$\\
+$ \lambda = 8.32$
+%3. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{a2_bayesdet2}
+\paragraph{}
+$3a) fY|H(y|H0) = -\frac{|y|}{16} + 0.25, -4\leq y \leq 4$\\
+                         0, otherwise\\
+$fY|H(y|H1) = 0.25, -2 \leq y \leq 2$\\
+                        0, otherwise\\
+\\
+$3b） fY|H(y|H0), if -4 \leq y \leq -2, 2 \leq y \leq 4$\\
+$fY|H(y|H1), if -2 < y <2$\\ 
+\\
+$3c)  \frac{1}{2}(\int_{2}^{0} -\frac{1}{16}y + \frac{1}{4}dy + \int_{0}^{-2}\frac{1}{16}y+\frac{1}{4}dy + \frac{1}{2})$\\
+$= \frac{1}{2}(-\frac{4}{32} + \frac{2}{4}) + \frac{1}{2}(-(\frac{4}{32}-\frac{2}{4}))$\\
+$=0.375 = \frac{3}{8}$
+%5. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{a2_bayesian_nets}
+\paragraph{}
+4a)$P(S = 1|V = 1) = \frac{((1 - \gamma) + (1 - \beta))(1-\delta)}{1-\delta}$\\
+${2 - \gamma - \beta}$\\
+4b)$P(S = 1|V = 0) = \frac{((1 - \gamma) + (1 - \beta))(\delta)}{\delta}$\\
+$2 - \gamma - \beta$\\
+They are the same, because these two are independent events, the result of V does not affect event S.
+%%%%% All questions from which to subselect
+%\input{assqs/a1_axiom}
+%\input{assqs/a1_biaseddie}
+%\input{assqs/a1_bonus}
+%\input{assqs/a1_bonus2}
+%\input{assqs/a1_children}
+%\input{assqs/a1_covariance}
+%\input{assqs/a1_coin}
+%\input{assqs/a1_dice}
+%\input{assqs/a1_electrical}
+%\input{assqs/a1_expectations}
+%\input{assqs/a1_fallacy}
+%\input{assqs/a1_figure15xyz}
+%\input{assqs/a1_game}
+%\input{assqs/a1_median}
+%\input{assqs/a1_monty}
+%\input{assqs/a1_prove_prob_dist}
+%\input{assqs/a1_sumproof}
+%\input{assqs/a1_xyz}
+
+
+
+
+% To get the last page number
+\label{EndOfAssignment}%
+
+\end{document}
